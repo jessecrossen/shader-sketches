@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Shader Sketches by Jesse Crossen</title>
+        <script type="text/javascript" src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js"></script>
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                display: block;
+                margin: 12px auto;
+            }
+            a, a:visited {
+                text-decoration: none;
+                font-weight: bold;
+                color: black;
+            }
+            header {
+                display: block;
+                text-align: center;
+                margin: 8px auto;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a href="#shaders/ripple-1.frag">◎</a>
+        </header>
+        <canvas class="glslCanvas" width="512" height="512"></canvas>
+        <script>
+            const canvas = document.getElementsByTagName('canvas')[0];
+            const glsl = new GlslCanvas(canvas);
+            const loadFragUrl = (url) => {
+                if (url.indexOf('.frag') < 0) url = './shaders/ripple-1.frag';
+                url = url.replace('#', '');
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url);
+                xhr.onload = () => { glsl.load(xhr.responseText); };
+                xhr.send();
+            }
+            const links = document.getElementsByTagName('a');
+            for (const link of links) {
+                link.onclick = (e) => {
+                    loadFragUrl(link.href);
+                }
+            }
+            loadFragUrl(document.location.href);
+        </script>
+    </body>
+</html>

@@ -12,6 +12,7 @@
             canvas {
                 display: block;
                 margin: 12px auto;
+                border-radius: 8px;
             }
             a, a:visited {
                 text-decoration: none;
@@ -27,7 +28,7 @@
     </head>
     <body>
         <header>
-            <a href="#shaders/ripple-1.frag">◎</a>
+            <a href="#ripple-1.frag">◎</a>
         </header>
         <canvas class="glslCanvas" width="512" height="512"></canvas>
         <script>
@@ -35,7 +36,7 @@
             const glsl = new GlslCanvas(canvas);
             const loadFragUrl = (url) => {
                 if (url.indexOf('.frag') < 0) url = './shaders/ripple-1.frag';
-                url = url.replace('#', '');
+                url = url.replace('#', 'shaders/');
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', url);
                 xhr.onload = () => { glsl.load(xhr.responseText); };

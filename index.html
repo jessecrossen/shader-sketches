@@ -42,7 +42,7 @@
         </header>
         <canvas class="glslCanvas" width="512" height="512"></canvas>
         <footer>
-            <a href="https://github.com/jessecrossen/shader-sketches/">source</a>
+            <a id="source" href="https://github.com/jessecrossen/shader-sketches/">source</a>
         </footer>
         <script>
             const canvas = document.getElementsByTagName('canvas')[0];
@@ -55,10 +55,18 @@
                 xhr.onload = () => { glsl.load(xhr.responseText); };
                 xhr.send();
             }
+            const sourceLink = document.getElementById('source');
             const links = document.getElementsByTagName('a');
             for (const link of links) {
                 link.onclick = (e) => {
-                    if (link.href.indexOf('#') >= 0) loadFragUrl(link.href);
+                    const i = link.href.indexOf('#');
+                    if (i >= 0) {
+                        loadFragUrl(link.href);
+                        sourceLink.href = 
+                            'https://github.com/jessecrossen/shader-sketches' +
+                            '/blob/master/shaders/' +
+                            link.href.substr(i + 1)+'.frag';
+                    }
                 }
             }
             loadFragUrl(document.location.href);

@@ -12,19 +12,22 @@ vec4 stalk(in vec2 st) {
   // wrap the position for continuous scrolling
   float x = mod(st.x, 8.0) - 0.5;
   // taper the stalk toward the top
-  x *= 1.0 + (st.y * 0.1);
+  float taper = 1.0 + (st.y * 0.1);
+  x *= taper;
   // curve nodes
   float y = st.y + cos(x * 1.5);
   float f = fract(y);
   // kink segments
-  float kink = sin(y * 0.1) * 0.05;
+  float kink = sin(st.x + (y * 0.1)) * 0.08;
   x += (mod(y, 2.0) < 1.0 ? f * kink : (1.0 - f) * kink);
-  // taper center of segments
+  // shrink center of segments so nodes bulge a bit
   x = abs(x * 8.0) + 
     (sin(f * PI) * 0.1);
-  // draw nodes
-  float color = smoothstep(0.02, 0.03, f) -
-                smoothstep(0.97, 0.98, f);
+  // draw nodes, reducing their line weight toward the top
+  float inner = 0.02 / taper;
+  float outer = inner + 0.01;
+  float color = smoothstep(inner, outer, f) -
+                smoothstep(1.0 - outer, 1.0 - inner, f);
   // draw outline
   color = smoothstep(1.02, 1.0, x) * color;
   float alpha = smoothstep(1.37, 1.35, x);

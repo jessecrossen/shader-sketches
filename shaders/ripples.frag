@@ -6,7 +6,6 @@ precision mediump float;
 #define TAU 6.283185307
 
 uniform vec2 u_resolution;
-uniform vec2 u_mouse;
 uniform float u_time;
 
 mat2 rotate2d(float _angle){
@@ -21,11 +20,11 @@ float ripple(in vec2 st) {
     return(color);
 }
 
-vec2 swirl(vec2 st) {
+vec2 swirl(in vec2 st) {
     return(rotate2d((u_time + length(st) * cos(u_time)) * 0.25) * st);
 }
 
-vec2 zoom(vec2 st) {
+vec2 zoom(in vec2 st) {
     return(st * vec2(4.0 + (sin(u_time) * 0.1)));
 }
 

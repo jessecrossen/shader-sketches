@@ -8,25 +8,19 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-mat2 rotate2d(float _angle){
-    return mat2(cos(_angle),-sin(_angle),
-                sin(_angle),cos(_angle));
-}
-
 vec4 stalk(in vec2 st, in float offset, in float angle, in float scroll) {
-  // rotate the stalk
-  st = rotate2d(angle) * st;
-  st += rotate2d(angle) * vec2(offset + scroll, 0.0);
+  // lean the stalk by converting the angle to a skew
+  float skew = sin(angle) * st.y;
   // wrap the position for continuous scrolling
-  float x = mod(st.x, 8.0) - 0.5;
+  float x = mod(st.x + skew + offset + scroll, 8.0) - 0.5;
   // taper the stalk toward the top
   float taper = 1.0 + (st.y * 0.1);
   x *= taper;
   // curve nodes
-  float y = st.y + cos(x * 1.5);
+  float y = offset + st.y + cos(x * 1.5);
   float f = fract(y);
   // kink segments
-  float kink = sin(st.x + (y * 0.1)) * 0.05;
+  float kink = sin(offset + (y * 0.1)) * 0.05;
   x += (mod(y, 2.0) < 1.0 ? f * kink : (1.0 - f) * kink);
   // shrink center of segments so nodes bulge a bit
   x = abs(x * 8.0) + 
@@ -83,7 +77,7 @@ void main() {
   float r5 = 0.03 * angle2;
   float r6 = -0.09 * angle3;
   // scroll bamboo
-  float scroll = u_time * 0.2;
+  float scroll = u_time * 0.25;
   float parallax = 1.1;
   float perspective = 0.85;
   // zoom out

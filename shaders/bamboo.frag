@@ -11,6 +11,8 @@ uniform float u_time;
 vec4 stalk(in vec2 st) {
   // wrap the position for continuous scrolling
   float x = mod(st.x, 8.0) - 0.5;
+  // taper the stalk toward the top
+  x *= 1.0 + (st.y * 0.1);
   // curve nodes
   float y = st.y + cos(x * 1.5);
   float f = fract(y);

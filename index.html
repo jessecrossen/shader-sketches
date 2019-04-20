@@ -8,6 +8,7 @@
             body, html {
                 margin: 0;
                 padding: 0;
+                color: #444;
             }
             canvas {
                 display: block;
@@ -23,7 +24,14 @@
                 display: block;
                 text-align: center;
                 margin: 8px auto;
-                color: #444;
+            }
+            footer {
+                display: block;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                text-align: right;
+                padding: 8px 16px;
             }
         </style>
     </head>
@@ -33,6 +41,9 @@
             <a href="#bamboo">bamboo</a>
         </header>
         <canvas class="glslCanvas" width="512" height="512"></canvas>
+        <footer>
+            <a href="https://github.com/jessecrossen/shader-sketches/">source</a>
+        </footer>
         <script>
             const canvas = document.getElementsByTagName('canvas')[0];
             const glsl = new GlslCanvas(canvas);
@@ -47,7 +58,7 @@
             const links = document.getElementsByTagName('a');
             for (const link of links) {
                 link.onclick = (e) => {
-                    loadFragUrl(link.href);
+                    if (link.href.indexOf('#') >= 0) loadFragUrl(link.href);
                 }
             }
             loadFragUrl(document.location.href);

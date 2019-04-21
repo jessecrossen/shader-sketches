@@ -112,6 +112,15 @@ float frame(in vec2 p, float depth, vec2 connect, float shrink) {
   return(color);
 }
 
+mat3 zoom(in float angle, in float len, in float shrink, in float f) {
+  float a1 = (PI - angle) * 0.5;
+  float a2 = ((0.25 * TAU) - a1) + (angle * f);
+  float r = (len * 0.5) / cos(a1);
+  vec2 c = vec2(sin(a1) * r, - (0.5 * len));
+  vec2 d = c + vec2(- (cos(a2) * r), (sin(a2) * r));
+  return(unbranch(d, angle * f, mix(1.0, shrink, f)));
+}
+
 void main() {
     vec2 st = (gl_FragCoord.xy / u_resolution);
     st.y *= u_resolution.y / u_resolution.x;
@@ -123,17 +132,13 @@ void main() {
     vec2 connect = vec2(0.25 + sin(u_time * 0.37) * 0.01, 
                         0.3 + cos(u_time * 0.23) * 0.01);
     float angle = atan(connect.x, connect.y);
+    float len = length(connect);
     float shrink = 0.55;
     mat3 inward = branch(connect, angle, shrink);
     mat3 outward = unbranch(connect, angle, shrink);
     // zoom in continuously to the next level of depth
     float f = mod(u_time * 0.3, 1.0);
-    float r = (length(connect) * 0.5) / cos((0.25 * TAU) - angle);
-    float a = angle * f * 2.0;
-    vec2 c = vec2(r - cos(a) * r, sin(a) * r);
-    a = atan(c.x, c.y);
-    mat3 zoom = unbranch(c, a, mix(1.0, shrink, f));
-    p = zoom * p;
+    p = zoom(angle, len, shrink, f) * p;
     // start drawing one level out in case the left branch 
     //  is visible while zooming
     p = outward * p;
@@ -145,5 +150,12 @@ void main() {
       p.x = abs(p.x);
       p = inward * p;
     }
+
+    // float color = 0.0;
+    // if (distance(p.xy, connect) <= 0.02) color = 0.5;
+    // if (length(p.xy) <= 0.02) color = 0.5;
+    // if (distance(p.xy, c) <= 0.02) color = 0.5;
+    // if (distance(p.xy, d) <= 0.02) color = 1.0;
+
     gl_FragColor = vec4(vec3(1.0 - color), 1.0);
 }

@@ -5,7 +5,7 @@ precision mediump float;
 #define PI 3.1415926535
 #define TAU 6.283185307
 
-#define DEPTH 8
+#define DEPTH 9
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -82,17 +82,17 @@ float stalk(in vec2 p, float depth, float shrink, float len) {
   p = tip + (rotate2d(r) * (p - tip));
   float taper = 0.0; 
   if (t > 1.5) {
-    taper = smoothstep(0.0, tip.y, p.y) * (radius * 1.5) * (t - 1.5);
+    taper = smoothstep(0.0, tip.y, p.y) * (radius * 2.5) * (t - 1.5);
   }
   if (p.y >= 0.0 && p.y <= tip.y &&
       abs(p.x) <= radius - taper) return(1.0);
   // ejected capsules
   float a = 0.0;
   float spread = max(0.0, 0.1 * (t - 1.7));
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 6; i++) {
     d = distance(p, vec2(tip.x + cos(a) * spread, tip.y + sin(a) * spread));
     if (d <= radius * 0.5) return(1.0);
-    a += TAU / 5.0;
+    a += TAU / 6.0;
   }
   return(0.0);
 }
@@ -103,42 +103,54 @@ float frame(in vec2 p, float depth, vec2 connect, float shrink) {
   // make a point that's reflected across the y axis for bilateral symmetry
   vec2 rp = vec2(abs(p.x), p.y);
   color += branches(rp, depth, connect, shrink);
-  color += stalk(p, depth, shrink, 0.2);
-  color += stalk(rotate2d(-0.33 * TAU) * p, depth, shrink, 0.15);
-  color += stalk(rotate2d(-0.33 * TAU) * vec2(- p.x, p.y), depth, shrink, 0.15);
-  // color += floaty(p, vec2(0.2 * (3.5 - depth), (1.5 - depth) * 0.3), depth);
-  // color += floaty(p, vec2(0.1 + 0.1 * (6.0 - depth), -0.1 + (1.5 - depth) * 0.3), depth);
-  if (distance(p, vec2(0.0, 0.02)) <= 0.02) color = 0.0;
+  // draw seed stalks when there's enough detail
+  if (depth <= 4.0) {
+    color += stalk(p, depth, shrink, 0.2);
+    color += stalk(rotate2d(-0.33 * TAU) * p, depth, shrink, 0.15);
+    color += stalk(rotate2d(-0.33 * TAU) * vec2(- p.x, p.y), depth, shrink, 0.15);
+  }
+  // draw a bright spot on junctions when there's enough detail
+  if (depth <= 5.0) {
+    if (distance(p, vec2(0.0, 0.02)) <= 
+        (0.02 * clamp(5.0 - depth, 0.0, 1.0))) color = 0.0;
+  }
   return(color);
 }
 
-mat3 zoom(in float angle, in float len, in float shrink, in float f) {
+// make an intermediate transition to continuously zoom and rotate the view
+mat3 zoom(in float angle, in vec2 connect, in float shrink, in float f) {
+  float len = length(connect);
   float a1 = (PI - angle) * 0.5;
   float a2 = ((0.25 * TAU) - a1) + (angle * f);
   float r = (len * 0.5) / cos(a1);
   vec2 c = vec2(sin(a1) * r, - (0.5 * len));
   vec2 d = c + vec2(- (cos(a2) * r), (sin(a2) * r));
-  return(unbranch(d, angle * f, mix(1.0, shrink, f)));
+  return(unbranch(d, angle * f, mix(1.0, shrink, length(d) / len)));
 }
 
 void main() {
     vec2 st = (gl_FragCoord.xy / u_resolution);
     st.y *= u_resolution.y / u_resolution.x;
-    st.x -= 0.6;
-    st.y -= 0.4;
-    st *= 1.5;
+    // shift the viewpoint around for variety
+    float r = 0.05;
+    float a = - (u_time * 0.3);
+    st += vec2(- 0.5 + r * cos(a), - 0.3 + r * sin(a));
+    st *= 1.5 - (sin(a) * 0.5);
+    // add some ripple
+    st.x += sin(st.x * 10.0 + u_time * 0.31) * st.y * 0.05;
+    st.y += cos(st.x * 10.0 + u_time * 0.29) * st.y * 0.05;
+    // convert the pixel location into a 3-vector for matrix ops
     vec3 p = vec3(st, 1.0);
     // make a self-similarity transform and its inverse
     vec2 connect = vec2(0.25 + sin(u_time * 0.37) * 0.01, 
                         0.3 + cos(u_time * 0.23) * 0.01);
     float angle = atan(connect.x, connect.y);
-    float len = length(connect);
     float shrink = 0.55;
     mat3 inward = branch(connect, angle, shrink);
     mat3 outward = unbranch(connect, angle, shrink);
     // zoom in continuously to the next level of depth
     float f = mod(u_time * 0.3, 1.0);
-    p = zoom(angle, len, shrink, f) * p;
+    p = zoom(angle, connect, shrink, f) * p;
     // start drawing one level out in case the left branch 
     //  is visible while zooming
     p = outward * p;
@@ -150,12 +162,5 @@ void main() {
       p.x = abs(p.x);
       p = inward * p;
     }
-
-    // float color = 0.0;
-    // if (distance(p.xy, connect) <= 0.02) color = 0.5;
-    // if (length(p.xy) <= 0.02) color = 0.5;
-    // if (distance(p.xy, c) <= 0.02) color = 0.5;
-    // if (distance(p.xy, d) <= 0.02) color = 1.0;
-
     gl_FragColor = vec4(vec3(1.0 - color), 1.0);
 }

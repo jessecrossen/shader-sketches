@@ -64,7 +64,7 @@ void main() {
       + (st.y * 0.5);
   float color = background < 0.3 ? 0.0 : 1.0;
   // draw blooms
-  float t = ((u_time - 0.5) * 0.5) - float(LAYERS - 1);
+  float t = ((u_time + 0.2) * 0.5) - float(LAYERS - 1);
   float f = fract(t);
   float offset = 1.0 / float(LAYERS);
   float layerTime, size, index, petals;

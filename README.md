@@ -6,6 +6,8 @@ fooling around with as an excercise in learning
 [GLSL](https://en.wikipedia.org/wiki/OpenGL_Shading_Language).
 If your browser supports WebGL, 
 [you can look at them here](https://jessecrossen.github.io/shader-sketches/).
+These are all 100% pure fragment shader code, 
+there are no textures involved.
 
 Rendering is handled by [glslCanvas](https://github.com/patriciogonzalezvivo/glslCanvas).
 I've been educated and inspired by 

@@ -8,9 +8,10 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-mat2 rotate2d(float _angle){
-    return mat2(cos(_angle),-sin(_angle),
-                sin(_angle),cos(_angle));
+mat2 rotate2d(float a) {
+  float c = cos(a);
+  float s = sin(a);
+  return mat2(c, -s, s,  c);
 }
 
 float ripple(in vec2 st) {

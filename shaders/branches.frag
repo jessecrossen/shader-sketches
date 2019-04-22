@@ -36,9 +36,10 @@ mat3 unbranch(in vec2 connect, in float angle, in float shrink) {
     mat3(1.0), vec2(1.0 / shrink)), angle), - connect));
 }
 
-mat2 rotate2d(float _angle){
-    return mat2(cos(_angle),-sin(_angle),
-                sin(_angle),cos(_angle));
+mat2 rotate2d(float a) {
+  float c = cos(a);
+  float s = sin(a);
+  return mat2(c, -s, s,  c);
 }
 
 float branches(in vec2 p, float depth, vec2 connect, float shrink) {

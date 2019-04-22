@@ -15,15 +15,16 @@
                 margin: 12px auto;
                 border-radius: 16px;
             }
-            a, a:visited {
+            a {
                 text-decoration: none;
                 font-style: italic;
-                color: inherit;
+                color: #000;
             }
+            a:visited { color: #444; }
             header {
                 display: block;
                 text-align: center;
-                margin: 8px auto;
+                margin: 16px auto;
             }
             footer {
                 display: block;
@@ -40,6 +41,7 @@
             <a href="#ripples">ripples</a> • 
             <a href="#bamboo">bamboo</a> • 
             <a href="#bloom">bloom</a> • 
+            <a href="#fronds">fronds</a> • 
             <a href="#branches">branches</a>
         </header>
         <canvas class="glslCanvas" width="512" height="512"></canvas>
@@ -47,31 +49,35 @@
             <a id="source" href="https://github.com/jessecrossen/shader-sketches/">source</a>
         </footer>
         <script>
+            // attach to elements
+            const sourceLink = document.getElementById('source');
             const canvas = document.getElementsByTagName('canvas')[0];
             const glsl = new GlslCanvas(canvas);
-            const loadFragUrl = (url) => {
-                if (url.indexOf('#') < 0) url = './#ripples';
-                url = url.replace('#', 'shaders/') + '.frag';
+            // load the appropriate shader for the given url
+            let loadedUrl;
+            const loadUrl = (url) => {
+                loadedUrl = url;
+                const i = url.indexOf('#');
+                const shader = i >= 0 ? url.substr(i + 1) : 'ripples';
+                sourceLink.href = 
+                    'https://github.com/jessecrossen/shader-sketches' +
+                    '/blob/master/shaders/'+shader+'.frag';
                 const xhr = new XMLHttpRequest();
-                xhr.open('GET', url);
-                xhr.onload = () => { glsl.load(xhr.responseText); };
+                xhr.open('GET', 'shaders/'+shader+'.frag');
+                xhr.onload = () => {
+                    glsl.timeLoad = glsl.timePrev = performance.now();
+                    glsl.load(xhr.responseText);
+                };
                 xhr.send();
             }
-            const sourceLink = document.getElementById('source');
-            const links = document.getElementsByTagName('a');
-            for (const link of links) {
-                link.onclick = (e) => {
-                    const i = link.href.indexOf('#');
-                    if (i >= 0) {
-                        loadFragUrl(link.href);
-                        sourceLink.href = 
-                            'https://github.com/jessecrossen/shader-sketches' +
-                            '/blob/master/shaders/' +
-                            link.href.substr(i + 1)+'.frag';
-                    }
+            // watch for changes to the url (e.g. from links or back button)
+            setInterval(() => {
+                if (document.location.href !== loadedUrl) {
+                    loadUrl(document.location.href);
                 }
-            }
-            loadFragUrl(document.location.href);
+            });
+            // load the current url
+            loadUrl(document.location.href);
         </script>
     </body>
 </html>

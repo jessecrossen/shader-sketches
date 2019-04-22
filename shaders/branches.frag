@@ -60,15 +60,6 @@ float branches(in vec2 p, float depth, vec2 connect, float shrink) {
   return(abs(p.y) < radius ? 1.0 : 0.0);
 }
 
-// floaty things
-float floaty(in vec2 p, vec2 c, float depth) {
-  if (depth <= 5.0) {
-    float d = distance(p, c);
-    if (d >= 0.02 && d <= 0.04) return(1.0);
-  }
-  return(0.0);
-}
-
 float stalk(in vec2 p, float depth, float shrink, float len) {
   float t = 3.5 - depth;
   // seed
@@ -121,12 +112,12 @@ float frame(in vec2 p, float depth, vec2 connect, float shrink) {
 // make an intermediate transition to continuously zoom and rotate the view
 mat3 zoom(in float angle, in vec2 connect, in float shrink, in float f) {
   float len = length(connect);
-  float a1 = (PI - angle) * 0.5;
-  float a2 = ((0.25 * TAU) - a1) + (angle * f);
+  float a1 = (TAU * 0.25) - (angle * 0.5);
+  float a2 = angle * (f + 0.5);
   float r = (len * 0.5) / cos(a1);
   vec2 c = vec2(sin(a1) * r, - (0.5 * len));
   vec2 d = c + vec2(- (cos(a2) * r), (sin(a2) * r));
-  return(unbranch(d, angle * f, mix(1.0, shrink, length(d) / len)));
+  return(unbranch(d, angle * f, pow(shrink, f)));
 }
 
 void main() {

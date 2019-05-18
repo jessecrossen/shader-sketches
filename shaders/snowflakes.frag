@@ -105,7 +105,7 @@ float animate(in vec2 p, in vec2 offset, in float t) {
   float size = 0.02 + (depth * 0.16);
   float speed = 1.25 + depth;
   float y = mix(speed, - speed, fract(t + offset.y));
-  float drift = 0.2 * rand(vec2(id, id - 0.6)) + 
+  float drift = 0.8 * (0.5 - rand(vec2(id, id - 0.6))) + 
     (size * sin(offset.x + y));
   float spin = 1. - (3. * rand(vec2(id + 0.2, id - 0.3)));
   float x = offset.x + (y * drift);
@@ -118,7 +118,7 @@ void main() {
 
   float color = 0.0;
 
-  float t = (u_time + 137.) * 0.15;
+  float t = (u_time + 137.) * 0.2;
 
   color += animate(p, vec2(-0.474277, 0.468185), t + -0.717748);
   color += animate(p, vec2(-0.996724, -0.608627), t + -0.562712);
